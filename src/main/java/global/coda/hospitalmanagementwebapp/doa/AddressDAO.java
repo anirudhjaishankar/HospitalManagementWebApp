@@ -1,13 +1,14 @@
 package global.coda.hospitalmanagementwebapp.doa;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import global.coda.hospitalmanagementwebapp.exceptions.DatabaseConnectionException;
 import global.coda.hospitalmanagementwebapp.beans.Address;
 
 public interface AddressDAO {
-    int createRecord(Address AddressObject) throws DatabaseConnectionException;
+    int createRecord(Address AddressObject) throws DatabaseConnectionException, SQLException;
 
     Address readRecord(int AddressId) throws DatabaseConnectionException;
 

@@ -7,9 +7,11 @@ public class ApplicationConstants {
     public static final String EMPTY_STRING = "";
     
     public static enum errorCodes{
-        HOS2001E,
+    	HOS2000I,
+    	
+        HOS2001E,HOS2002E,
         
-        HOS3014E, HOS3016E, HOS3019E
+        HOS3015E,HOS3014E, HOS3016E, HOS3019E
     }
 
 }

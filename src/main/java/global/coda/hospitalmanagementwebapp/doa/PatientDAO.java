@@ -5,14 +5,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 import global.coda.hospitalmanagementwebapp.exceptions.DatabaseConnectionException;
-import global.coda.hospitalmanagementwebapp.exceptions.InconsistentDataException;
 import global.coda.hospitalmanagementwebapp.exceptions.NoRecordsFoundException;
 import global.coda.hospitalmanagementwebapp.beans.PatientDetails;
 
 public interface PatientDAO {
-    int createRecord(PatientDetails pateintObject) throws DatabaseConnectionException;
+    int createRecord(PatientDetails pateintObject, int foreignKeyUserId) throws DatabaseConnectionException, SQLException;
 
-    PatientDetails readRecord(int pateintId) throws DatabaseConnectionException, SQLException, InconsistentDataException, NoRecordsFoundException;
+    PatientDetails readRecord(int pateintId) throws DatabaseConnectionException, SQLException;
 
     List<PatientDetails> readAllRecords() throws DatabaseConnectionException;
 

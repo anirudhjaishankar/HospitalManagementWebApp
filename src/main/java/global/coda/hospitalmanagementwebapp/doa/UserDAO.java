@@ -1,13 +1,14 @@
 package global.coda.hospitalmanagementwebapp.doa;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import global.coda.hospitalmanagementwebapp.exceptions.DatabaseConnectionException;
 import global.coda.hospitalmanagementwebapp.beans.PersonDetails;
 
 public interface UserDAO {
-    int createRecord(PersonDetails personObject) throws DatabaseConnectionException;
+    int createRecord(PersonDetails personObject, int addressId,int roleId) throws DatabaseConnectionException, SQLException;
 
     PersonDetails readRecord(int personId) throws DatabaseConnectionException;
 

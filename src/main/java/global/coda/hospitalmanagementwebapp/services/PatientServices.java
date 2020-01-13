@@ -1,10 +1,13 @@
 package global.coda.hospitalmanagementwebapp.services;
 
+import static global.coda.hospitalmanagementwebapp.constants.ApplicationConstants.MESSAGES_BUNDLE;
 import static global.coda.hospitalmanagementwebapp.constants.PatientServicesConstants.PATIENT_SERVICES_CLASSNAME;
 
-import java.sql.SQLException;
+import java.util.ResourceBundle;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -15,31 +18,50 @@ import org.apache.logging.log4j.Logger;
 
 import global.coda.hospitalmanagementwebapp.beans.GenericResponse;
 import global.coda.hospitalmanagementwebapp.beans.PatientDetails;
+import global.coda.hospitalmanagementwebapp.constants.ApplicationConstants.errorCodes;
 import global.coda.hospitalmanagementwebapp.delegate.PatientDelegate;
-import global.coda.hospitalmanagementwebapp.exceptions.DatabaseConnectionException;
-import global.coda.hospitalmanagementwebapp.exceptions.InconsistentDataException;
-import global.coda.hospitalmanagementwebapp.exceptions.NoRecordsFoundException;;
+import global.coda.hospitalmanagementwebapp.exceptions.BussinessException;
+import global.coda.hospitalmanagementwebapp.exceptions.SystemException;;
 
 @Path("/patients")
 public class PatientServices {
 
-    private Logger LOGGER = LogManager.getLogger(PATIENT_SERVICES_CLASSNAME);
-    private PatientDelegate patientDelegate = new PatientDelegate(); 
+	private Logger LOGGER = LogManager.getLogger(PATIENT_SERVICES_CLASSNAME);
+	private PatientDelegate patientDelegate = new PatientDelegate();
 
-    @GET
-    @Path("read/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public GenericResponse<?> getPatient(@PathParam("id") int id)
-            throws DatabaseConnectionException, InconsistentDataException, SQLException, NoRecordsFoundException {
-        LOGGER.traceEntry(Integer.toString(id));
-        
-        
-        PatientDetails patientRecord = patientDelegate.readPatient(id);
+	private static ResourceBundle LOCAL_MESSAGE_BUNDLE = ResourceBundle.getBundle(MESSAGES_BUNDLE);
 
-        GenericResponse<PatientDetails> responseObject = new GenericResponse<PatientDetails>();
-        responseObject.setData(patientRecord);
-        responseObject.setStatusCode(200);
-        return responseObject;
-    }
+	@GET
+	@Path("read/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public GenericResponse<PatientDetails> getPatient(@PathParam("id") int id)
+			throws BussinessException, SystemException {
+		LOGGER.traceEntry(Integer.toString(id));
+
+		PatientDetails patientRecord = patientDelegate.readPatient(id);
+
+		GenericResponse<PatientDetails> responseObject = new GenericResponse<PatientDetails>();
+		responseObject.setData(patientRecord);
+		responseObject.setStatusCode(200);
+		return responseObject;
+	}
+
+	@POST
+	@Path("create")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public GenericResponse<String> createPatient(PatientDetails patient) throws BussinessException, SystemException {
+		LOGGER.traceEntry(patient.toString());
+
+		int patientId = patientDelegate.createPatient(patient);
+		GenericResponse<String> responseObject = new GenericResponse<String>();
+		if (patientId != -1) {
+			responseObject.setData(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS2000I.toString()));
+			responseObject.setStatusCode(200);
+		}
+
+		return responseObject;
+
+	}
 
 }
