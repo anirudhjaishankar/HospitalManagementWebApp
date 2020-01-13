@@ -27,123 +27,184 @@ import global.coda.hospitalmanagementwebapp.exceptions.DatabaseConnectionExcepti
 
 public class PatientDAOImplementation implements PatientDAO {
 
-	private Logger LOGGER = LogManager.getLogger(PATIENTDAOIMPLEMENTATION_CLASSNAME);
-	private static ResourceBundle LOCAL_MESSAGE_BUNDLE = ResourceBundle.getBundle(MESSAGES_BUNDLE);
+    private Logger LOGGER = LogManager.getLogger(PATIENTDAOIMPLEMENTATION_CLASSNAME);
+    private static ResourceBundle LOCAL_MESSAGE_BUNDLE = ResourceBundle.getBundle(MESSAGES_BUNDLE);
 
-	@Override
-	public int createRecord(PatientDetails patientObject, int foreignKeyUserId)
-			throws DatabaseConnectionException, SQLException {
+    @Override
+    public int createRecord(PatientDetails patientObject, int foreignKeyUserId)
+            throws DatabaseConnectionException, SQLException {
 
-		Connection mySqlConnection = createConnection(MAIN_DB);
-		PreparedStatement insert = null;
-		if (mySqlConnection == null) {
-			LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
-			throw new DatabaseConnectionException();
-		}
-		try {
-			insert = mySqlConnection.prepareStatement(PATIENT_INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
-			insert.setString(1, Long.toString(patientObject.getPatientPhone()));
-			insert.setString(2, patientObject.getPatientBloodGroup());
-			insert.setString(3, Integer.toString(foreignKeyUserId));
-			int rowsAffectedPatient = insert.executeUpdate();
-			if (rowsAffectedPatient == 0) {
-				LOGGER.error(MessageFormat.format(errorCodes.HOS3015E.toString(), tableNames.t_patient.toString()));
-				return -1;
-			}
-			ResultSet patientResultSet = insert.getGeneratedKeys();
-			int insertedPatientId = -1;
-			if(patientResultSet.next()) {
-				 insertedPatientId = patientResultSet.getInt(1);
-			}
-			return insertedPatientId;
+        Connection mySqlConnection = createConnection(MAIN_DB);
+        PreparedStatement insert = null;
+        if (mySqlConnection == null) {
+            LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
+            throw new DatabaseConnectionException();
+        }
+        try {
+            insert = mySqlConnection.prepareStatement(PATIENT_INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
+            insert.setString(1, Long.toString(patientObject.getPatientPhone()));
+            insert.setString(2, patientObject.getPatientBloodGroup());
+            insert.setString(3, Integer.toString(foreignKeyUserId));
+            int rowsAffectedPatient = insert.executeUpdate();
+            if (rowsAffectedPatient == 0) {
+                LOGGER.error(MessageFormat.format(errorCodes.HOS3015E.toString(), tableNames.t_patient.toString()));
+                return -1;
+            }
+            ResultSet patientResultSet = insert.getGeneratedKeys();
+            int insertedPatientId = -1;
+            if (patientResultSet.next()) {
+                insertedPatientId = patientResultSet.getInt(1);
+            }
+            return insertedPatientId;
 
-		} catch (SQLException sqlError) {
-			LOGGER.error(sqlError.getMessage());
-			throw sqlError;
-		} finally {
-			if (insert != null) {
-				try {
-					insert.close();
-				} catch (SQLException sqlError) {
-					LOGGER.error(sqlError.getMessage());
-				}
-			}
-		}
-	}
+        } catch (SQLException sqlError) {
+            LOGGER.error(sqlError.getMessage());
+            throw sqlError;
+        } finally {
+            if (insert != null) {
+                try {
+                    insert.close();
+                } catch (SQLException sqlError) {
+                    LOGGER.error(sqlError.getMessage());
+                }
+            }
+        }
+    }
 
-	@Override
-	public PatientDetails readRecord(int patientId) throws DatabaseConnectionException, SQLException {
-		PatientDetails patient = new PatientDetails();
-		Connection mySqlConnection = createConnection(MAIN_DB);
-		PreparedStatement read = null;
-		if (mySqlConnection == null) {
-			LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
-			throw new DatabaseConnectionException();
-		}
-		try {
-			read = mySqlConnection.prepareStatement(PATIENT_READ_QUERY + patientId);
-			ResultSet sqlResult = read.executeQuery();
-			if (sqlResult.next() == false) {
-				return null;
-			}
-			patient.setPatientPhone(Long.parseLong(sqlResult.getString("phone")));
-			patient.setPatientBloodGroup(sqlResult.getString("blood_group"));
+    @Override
+    public PatientDetails readRecord(int patientId) throws DatabaseConnectionException, SQLException {
+        LOGGER.traceEntry(Integer.toString(patientId));
+        PatientDetails patient = new PatientDetails();
+        Connection mySqlConnection = createConnection(MAIN_DB);
+        PreparedStatement read = null;
+        if (mySqlConnection == null) {
+            LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
+            throw new DatabaseConnectionException();
+        }
+        try {
+            read = mySqlConnection.prepareStatement(PATIENT_READ_QUERY + patientId);
+            ResultSet sqlResult = read.executeQuery();
+            if (sqlResult.next() == false) {
+                return null;
+            }
+            patient.setPatientPhone(Long.parseLong(sqlResult.getString("phone")));
+            patient.setPatientBloodGroup(sqlResult.getString("blood_group"));
 
-			patient.setName(sqlResult.getString("name"));
-			patient.setAge(Integer.parseInt(sqlResult.getString("age")));
-			patient.setGender(sqlResult.getString("gender"));
-			patient.setUsername(sqlResult.getString("username"));
-			patient.setPassword(sqlResult.getString("password"));
-			Address newAddress = new Address();
-			newAddress.setFlatName(sqlResult.getString("flatname"));
-			newAddress.setFlatNumber(sqlResult.getString("flatnumber"));
-			newAddress.setAreaName(sqlResult.getString("area"));
-			newAddress.setCityName(sqlResult.getString("city"));
-			newAddress.setStateName(sqlResult.getString("state"));
-			newAddress.setStreetName(sqlResult.getString("street"));
-			patient.setAddress(newAddress);
+            patient.setName(sqlResult.getString("name"));
+            patient.setAge(Integer.parseInt(sqlResult.getString("age")));
+            patient.setGender(sqlResult.getString("gender"));
+            patient.setUsername(sqlResult.getString("username"));
+            patient.setPassword(sqlResult.getString("password"));
+            Address newAddress = new Address();
+            newAddress.setFlatName(sqlResult.getString("flatname"));
+            newAddress.setFlatNumber(sqlResult.getString("flatnumber"));
+            newAddress.setAreaName(sqlResult.getString("area"));
+            newAddress.setCityName(sqlResult.getString("city"));
+            newAddress.setStateName(sqlResult.getString("state"));
+            newAddress.setStreetName(sqlResult.getString("street"));
+            patient.setAddress(newAddress);
 
-			read.close();
-			sqlResult.close();
-			LOGGER.traceExit(patient.toString());
-			return patient;
+            read.close();
+            sqlResult.close();
+            LOGGER.traceExit(patient.toString());
+            return patient;
 
-		} catch (SQLException sqlError) {
-			LOGGER.error(sqlError.getMessage());
-			throw sqlError;
-		} finally {
-			if (read != null) {
-				try {
-					read.close();
-				} catch (SQLException sqlError) {
-					LOGGER.error(sqlError.getMessage());
-				}
-			}
-		}
-	}
+        } catch (SQLException sqlError) {
+            LOGGER.error(sqlError.getMessage());
+            throw sqlError;
+        } finally {
+            if (read != null) {
+                try {
+                    read.close();
+                } catch (SQLException sqlError) {
+                    LOGGER.error(sqlError.getMessage());
+                }
+            }
+        }
+    }
 
-	@Override
-	public List<PatientDetails> readAllRecords() throws DatabaseConnectionException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<PatientDetails> readAllPatients() throws DatabaseConnectionException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean deleteRecord(int patientId) throws DatabaseConnectionException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean deleteRecord(int patientId) throws DatabaseConnectionException, SQLException {
+        Connection mySqlConnection = createConnection(MAIN_DB);
+        PreparedStatement delete = null;
+        if (mySqlConnection == null) {
+            LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
+            throw new DatabaseConnectionException();
+        }
+        try {
+            delete = mySqlConnection.prepareStatement(PATIENT_DELETE_QUERY + patientId);
+            int rowsAffectedPatients = delete.executeUpdate();
+            if (rowsAffectedPatients == 0) {
+                LOGGER.error(MessageFormat.format(errorCodes.HOS3015E.toString(), tableNames.t_patient.toString()));
+                return false;
+            }
+            return true;
+        } catch (SQLException sqlError) {
+            LOGGER.error(sqlError);
+            throw sqlError;
+        }
+    }
 
-	@Override
-	public boolean checkDatabaseConnection(Connection SqlConnection) throws DatabaseConnectionException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean checkDatabaseConnection(Connection SqlConnection) throws DatabaseConnectionException {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean updateRecord(PatientDetails newPatient, int patientId) throws DatabaseConnectionException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean updateRecord(PatientDetails newPatient, int patientId)
+            throws DatabaseConnectionException, SQLException {
+        Connection mySqlConnection = createConnection(MAIN_DB);
+        PreparedStatement update = null;
+        if (mySqlConnection == null) {
+            LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
+            throw new DatabaseConnectionException();
+        }
+        try {
+            update = mySqlConnection.prepareStatement(PATIENT_UPDATE_QUERY + patientId);
+            update.setString(1, Long.toString(newPatient.getPatientPhone()));
+            update.setString(2, newPatient.getPatientBloodGroup());
+
+            int rowsAffectedPatients = update.executeUpdate();
+            if (rowsAffectedPatients == 0) {
+                LOGGER.error(MessageFormat.format(errorCodes.HOS3015E.toString(), tableNames.t_patient.toString()));
+                return false;
+            }
+            return true;
+        } catch (SQLException sqlError) {
+            LOGGER.error(sqlError);
+            throw sqlError;
+        }
+
+    }
+
+    @Override
+    public int getUserId(int patientId) throws DatabaseConnectionException, SQLException {
+        Connection mySqlConnection = createConnection(MAIN_DB);
+        PreparedStatement read = null;
+        if (mySqlConnection == null) {
+            LOGGER.error(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS3014E.toString()));
+            throw new DatabaseConnectionException();
+        }
+        try {
+            read = mySqlConnection.prepareStatement(PATIENT_READ_QUERY + patientId);
+            ResultSet userIdResult = read.executeQuery();
+            if (userIdResult.next()) {
+                return userIdResult.getInt("fk_user_id");
+            } else {
+                return -1;
+            }
+        } catch (SQLException sqlError) {
+            LOGGER.error(sqlError);
+            throw sqlError;
+        }
+
+    }
 
 }

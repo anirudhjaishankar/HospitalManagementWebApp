@@ -2,7 +2,12 @@ package global.coda.hospitalmanagementwebapp.exceptions;
 
 public class BussinessException extends Exception{
 
-	public BussinessException() {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    public BussinessException() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

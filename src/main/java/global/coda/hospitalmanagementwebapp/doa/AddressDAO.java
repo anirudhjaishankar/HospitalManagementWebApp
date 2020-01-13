@@ -14,9 +14,9 @@ public interface AddressDAO {
 
     List<Address> readAllRecords() throws DatabaseConnectionException;
 
-    boolean deleteRecord(int AddressId) throws DatabaseConnectionException;
+    boolean deleteRecord(int AddressId) throws DatabaseConnectionException, SQLException;
 
     boolean checkDatabaseConnection(Connection SqlConnection) throws DatabaseConnectionException;
 
-    boolean updateRecord(Address addressDetails, int pk_address_id) throws DatabaseConnectionException;
+    boolean updateRecord(Address addressDetails, int pk_address_id) throws DatabaseConnectionException, SQLException;
 }

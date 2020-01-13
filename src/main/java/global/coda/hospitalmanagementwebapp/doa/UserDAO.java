@@ -14,9 +14,11 @@ public interface UserDAO {
 
     List<PersonDetails> readAllRecords() throws DatabaseConnectionException;
 
-    boolean deleteRecord(int personId) throws DatabaseConnectionException;
+    boolean deleteRecord(int personId) throws DatabaseConnectionException, SQLException;
 
     boolean checkDatabaseConnection(Connection SqlConnection) throws DatabaseConnectionException;
 
-    boolean updateRecord(PersonDetails PersonDetails, int pk_user_id) throws DatabaseConnectionException;
+    boolean updateRecord(PersonDetails PersonDetails, int pk_user_id) throws DatabaseConnectionException, SQLException;
+
+    int getAddressId(int userId) throws DatabaseConnectionException, SQLException;
 }
