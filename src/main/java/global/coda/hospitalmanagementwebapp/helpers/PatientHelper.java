@@ -86,11 +86,15 @@ public class PatientHelper {
             throws SQLException, DatabaseConnectionException {
         LOGGER.traceEntry(patientDetails.toString());
         try {
+        	LOGGER.info(patientDetails.getAddress().toString());
             if (patientsDAO.updateRecord(patientDetails, patientId)) {
                 int foreignUserId = patientsDAO.getUserId(patientId);
+                LOGGER.info(foreignUserId);
                 if (userDAO.updateRecord(patientDetails, foreignUserId)) {
                     int foreignKeyAddressId = userDAO.getAddressId(foreignUserId);
+                    LOGGER.info(foreignKeyAddressId);
                     if (addressDAO.updateRecord(patientDetails.getAddress(), foreignKeyAddressId)) {
+                    	LOGGER.info("success");
                         return true;
                     }
                 }

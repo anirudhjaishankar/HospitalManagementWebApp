@@ -84,7 +84,7 @@ public class PatientDAOImplementation implements PatientDAO {
         try {
             read = mySqlConnection.prepareStatement(PATIENT_READ_QUERY + patientId);
             ResultSet sqlResult = read.executeQuery();
-            if (sqlResult.next() == false) {
+            if (sqlResult != null && sqlResult.next() == false) {
                 return null;
             }
             patient.setPatientPhone(Long.parseLong(sqlResult.getString("phone")));
@@ -102,6 +102,7 @@ public class PatientDAOImplementation implements PatientDAO {
             newAddress.setCityName(sqlResult.getString("city"));
             newAddress.setStateName(sqlResult.getString("state"));
             newAddress.setStreetName(sqlResult.getString("street"));
+            newAddress.setPincode(sqlResult.getLong("pincode"));
             patient.setAddress(newAddress);
 
             read.close();
@@ -180,6 +181,9 @@ public class PatientDAOImplementation implements PatientDAO {
         } catch (SQLException sqlError) {
             LOGGER.error(sqlError);
             throw sqlError;
+        } catch (Exception unknownError) {
+        	LOGGER.error(unknownError);
+        	return false;
         }
 
     }
@@ -193,7 +197,7 @@ public class PatientDAOImplementation implements PatientDAO {
             throw new DatabaseConnectionException();
         }
         try {
-            read = mySqlConnection.prepareStatement(PATIENT_READ_QUERY + patientId);
+            read = mySqlConnection.prepareStatement(PATIENT_USERID_READ_QUERY + patientId);
             ResultSet userIdResult = read.executeQuery();
             if (userIdResult.next()) {
                 return userIdResult.getInt("fk_user_id");

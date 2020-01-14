@@ -93,7 +93,7 @@ public class PatientServices {
         GenericResponse<String> genericResponse = new GenericResponse<String>();
         if(isDeleted) {
             genericResponse.setData(LOCAL_MESSAGE_BUNDLE.getString(errorCodes.HOS2002I.toString()));
-            genericResponse.setStatusCode(200);
+            genericResponse.setStatusCode(201);
         }
         return genericResponse;
     }
